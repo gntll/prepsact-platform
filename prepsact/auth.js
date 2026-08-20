@@ -1,22 +1,9 @@
 import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "./lib/prisma";
+// ... your other providers (e.g., GitHub, Google, Credentials)
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.AUTH_SECRET, // Explicitly define it here
   providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: { email: {}, password: {} },
-      async authorize(credentials) {
-        // Mock authorization for snapshot purposes
-        if (credentials.email === "student@test.com") {
-          return { id: "1", name: "Test Student", email: "student@test.com", role: "student" };
-        }
-        return null;
-      }
-    })
-  ]
+    // ... your providers configuration
+  ],
 });
