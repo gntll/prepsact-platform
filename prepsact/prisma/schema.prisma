@@ -1,7 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,17 +5,36 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  password      String?
-  role          String    @default("student")
+
+enum SectionType {
+  MATH
+  READING_WRITING
 }
+
+enum DifficultyTier {
+  EASY
+  MEDIUM
+  HARD
+}
+
 model Question {
-  id            String   @id @default(cuid())
-  text          String
-  options       String[]
-  correctAnswer String
-  difficulty    Float    @default(1.0)
+  id            String         @id @default(cuid())
+  section       SectionType
+  domain        String         // e.g., "Algebra", "Advanced Math", "Craft and Structure"
+  difficulty    DifficultyTier @default(MEDIUM)
+  prompt        String         // The question prompt text (can include LaTeX/Markdown)
+  passage       String?        // Optional passage for reading questions
+  explanation   String?        // Detailed step-by-step solution
+  choices       Choice[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Choice {
+  id          String   @id @default(cuid())
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  label       String   // e.g., "A", "B", "C", "D"
+  text        String   // Option content
+  isCorrect   Boolean  @default(false)
 }
